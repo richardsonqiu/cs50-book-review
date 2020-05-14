@@ -13,7 +13,7 @@ SQLAlchemy = "*"
 psycopg2 = "*"
 flask-sqlalchemy = "*"
 gunicorn = "*"
-werkzeug = "*"
+werkzeug = "==0.16.0"
 
 [requires]
 python_version = "3.7"
