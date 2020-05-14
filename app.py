@@ -81,7 +81,7 @@ def register():
             return render_template("error.html", message="please provide username")
         
         # Check if username already exists
-        username_check = db.execute("SELECT * FROM users WHERE username=:username", {"username": username})
+        username_check = db.execute("SELECT * FROM users WHERE username=:username", {"username": username}).fetchone()
         if username_check != 1:
             return render_template("error.html", message="username already exists")
 
