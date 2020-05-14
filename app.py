@@ -30,7 +30,6 @@ Session(app)
 engine = create_engine('postgres://xtafrcfepfrhkv:1da5e6972ef6a58f22c55d716ca79ad297a6d7eefd350d633aacf8de4c636fa5@ec2-50-17-21-170.compute-1.amazonaws.com:5432/da6g2ambslb4rn')
 db = scoped_session(sessionmaker(bind=engine))
 
-
 @app.route("/")
 # @login_required
 def index():
