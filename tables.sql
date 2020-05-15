@@ -9,7 +9,7 @@ CREATE TABLE books (
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR UNIQUE NOT NULL,
-    hash VARCHAR NOT NULL
+    hashed_password VARCHAR NOT NULL
 );
 
 

@@ -14,6 +14,8 @@ psycopg2 = "*"
 flask-sqlalchemy = "*"
 gunicorn = "*"
 werkzeug = "==0.16.0"
+python-dotenv = "*"
+werkzeug-security = "*"
 
 [requires]
 python_version = "3.7"

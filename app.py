@@ -17,9 +17,11 @@ API_URL = "https://www.goodreads.com/book/"
 # res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "KEY", "isbns": "9781632168146"})
 # print(res.json())
 
-# # Check for environment variable
-# if not os.getenv("DATABASE_URL"):
-#     raise RuntimeError("DATABASE_URL is not set")
+# DATABASE_URL = 'postgres://xtafrcfepfrhkv:1da5e6972ef6a58f22c55d716ca79ad297a6d7eefd350d633aacf8de4c636fa5@ec2-50-17-21-170.compute-1.amazonaws.com:5432/da6g2ambslb4rn'
+
+# Check for environment variable
+if not os.getenv("DATABASE_URL"):
+    raise RuntimeError("DATABASE_URL is not set")
 
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
@@ -53,12 +55,20 @@ def login():
         
         rows = db.execute("SELECT * FROM users WHERE username=:username", {"username": username})
 
+        result = rows.fetchone()
+        
         # check username exists and password correct
+        if result == None or not check_password_hash(result[2], password):
+            return render_template("error.html", message="invalid username and/or password")
 
         # remember which user has logged in 
+        session["user_id"] = result[0]
+        session["user_username"] = result[1] 
+        print(result[0])
+        print(result[1])
 
         # redirect user to home page again
-
+        return redirect("/")
     else:
         return render_template("login.html")
 
@@ -82,7 +92,7 @@ def register():
         
         # Check if username already exists
         username_check = db.execute("SELECT * FROM users WHERE username=:username", {"username": username}).fetchone()
-        if username_check != 1:
+        if username_check:
             return render_template("error.html", message="username already exists")
 
         # Check password submitted
@@ -99,11 +109,11 @@ def register():
         if not password == confirm_password:
             return render_template("error.html", message="passwords did not match")
         
-        # Hash password to store in DB
-        hashedPassword = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
+        # Hash password to store in DB , method='pbkdf2:sha256', salt_length=8
+        hashed_password = generate_password_hash(password)
 
         # Insert registered user into DB
-        db.execute("INSERT INTO users (username, hash) VALUES (:username, :password)", {"username": username, "password": hashedPassword})
+        db.execute("INSERT INTO users (username, hashed_password) VALUES (:username, :hashed_password)", {"username": username, "hashed_password": hashed_password})
 
         db.commit()
 
