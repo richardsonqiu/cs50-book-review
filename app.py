@@ -125,6 +125,24 @@ def register():
 @login_required
 def search():
     """ Search books """ 
+    search_book = request.args.get("search_book")
+    if not search_book:
+        return render_template("error.html", message="Please provide your desired search")
+
+    query = "%" + search_book + "%"
+    
+    rows = db.execute("SELECT isbn, title, author, year FROM books WHERE (isbn LIKE :query) OR (title LIKE :query) OR (author LIKE :query)", {"query": query})
+
+    if rows.rowcount == 0:
+        return render_template("error.html", message="Sorry! Cannot find your desired book!")
+    
+    books = rows.fetchall()
+
+    return render_template("results.html", books=books)
+
+
+
+        
 
 
 if __name__ == "__main__":

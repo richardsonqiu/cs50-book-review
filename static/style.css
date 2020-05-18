@@ -7,3 +7,23 @@ main .form-control
     width: auto;
 }
 
+.card-body {
+    text-align: start;
+}
+
+.results-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: baseline;
+}
+
+main
+{
+    /* scroll horizontally as needed */
+    overflow-x: auto;
+
+    /* center contents */
+    text-align: center;
+}
