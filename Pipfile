@@ -16,7 +16,6 @@ gunicorn = "*"
 werkzeug = "==0.16.0"
 python-dotenv = "*"
 pip = "*"
-requests = "*"
 
 [requires]
 python_version = "3.7"
