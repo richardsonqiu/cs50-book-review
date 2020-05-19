@@ -1,4 +1,4 @@
-import os, json
+import os, json, requests
 
 from flask import Flask, request, session, redirect, render_template, jsonify, flash
 from flask_session import Session
@@ -33,7 +33,7 @@ engine = create_engine('postgres://xtafrcfepfrhkv:1da5e6972ef6a58f22c55d716ca79a
 db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/")
-# @login_required
+@login_required
 def index():
     """ Show search library """
     return render_template("index.html")
@@ -140,9 +140,79 @@ def search():
 
     return render_template("results.html", books=books)
 
+@app.route("/book/<isbn>", methods=["GET", "POST"])
+@login_required
+def book(isbn):
+    """ GET BOOK PAGE """
+    if request.method == "GET":
+        rows = db.execute("SELECT isbn, title, author, year FROM books WHERE isbn=:isbn", {"isbn": isbn})
 
+        bookDetails = rows.fetchall()
 
+        """ GOODREADS review """
         
+        # Read Api key from env 
+        key = os.getenv("GOODREADS_KEY")
+
+        if not os.getenv("GOODREADS_KEY"):
+            raise RuntimeError("GOODREADS_KEY is not set")
+
+        # Query api with key and isbn as param
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": key, "isbns": isbn})
+        
+        # Convert response to JSON 
+        response = res.json()
+
+        # 'clean' JSON before passing it to bookDetails
+        response = response['books'][0]
+
+        # Append response as the second element on the list
+        bookDetails.append(response)
+
+        """ Users review """
+        rows = db.execute("SELECT id, isbn, title, author, year FROM books WHERE isbn=:isbn", {"isbn": isbn})
+
+        # Save id into variable
+        book = rows.fetchone()
+        book_id = book[0]
+
+        # Fetch book review
+        results = db.execute("SELECT users.username, comment, rating FROM users INNER JOIN reviews ON users.id = reviews.user_id WHERE book_id=:book_id", {"book_id": book_id})
+
+        reviews = results.fetchall()
+
+        if reviews:
+            print(reviews)
+
+        return render_template("book.html", bookDetails=bookDetails, reviews=reviews)
+
+    # request method = POST
+    else: 
+        currentUser = session["user_id"]
+        rating = request.form.get("rating")
+        comment = request.form.get("comment")
+
+        rows = db.execute("SELECT id FROM books WHERE isbn=:isbn", {"isbn": isbn})
+
+        book = rows.fetchone()
+        book_id = book[0]
+
+        rows2 = db.execute("SELECT * FROM reviews WHERE user_id=:user_id AND book_id=:book_id", {"user_id": currentUser, "book_id": book_id})
+
+        # if rows2.rowcount == 1:
+        #     flash("You already submitted a review for this book", 'warning')
+        #     return redirect("/book/" + isbn)
+
+        # rating = int(rating)
+
+        db.execute("INSERT INTO reviews (user_id, book_id, comment, rating) VALUES (:user_id, :book_id, :comment, :rating)", {"user_id": currentUser, "book_id": book_id, "comment": comment, "rating": rating})
+
+        db.commit()
+
+        flash("Review submitted!", 'info')
+
+        return redirect("/book/" + isbn)    
+
 
 
 if __name__ == "__main__":
