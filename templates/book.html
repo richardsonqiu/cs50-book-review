@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    {{bookDetails[0]['title']}}
+    {{bookDetails[0]['title'] | safe}}
 {% endblock %}
 
 {% block body %}
@@ -10,17 +10,17 @@
             <img src="http://covers.openlibrary.org/b/isbn/{{bookDetails[0]['isbn']}}-M.jpg" width="130px">    
         </div>
         <div class="col-sm-4">
-            <h1>{{bookDetails[0]['title']}}</h1>
-            <h5>Author: {{bookDetails[0]['author']}}</h5>
-            <h5>Published: {{bookDetails[0]['year']}}</h5>
-            <h5>ISBN-10: {{bookDetails[0]['isbn']}}</h5>
+            <h1>{{bookDetails[0]['title'] | safe}}</h1>
+            <h5>Author: {{bookDetails[0]['author'] | safe}}</h5>
+            <h5>Published: {{bookDetails[0]['year'] | safe}}</h5>
+            <h5>ISBN-10: {{bookDetails[0]['isbn'] | safe}}</h5>
         </div>
 
         <!--GOODREADS REVIEWS -->
         <div class="col-sm-4">
             <img class="mb-3" src="../static/goodreads.jpg" alt="Goodreads" width="200" height="45">
-            <h5>No. of Ratings: {{bookDetails[1]['work_ratings_count']}}</h5>
-            <h5>Average Rating: {{bookDetails[1]['average_rating']}}</h5>
+            <h5>No. of Ratings: {{bookDetails[1]['work_ratings_count'] | safe}}</h5>
+            <h5>Average Rating: {{bookDetails[1]['average_rating'] | safe}}</h5>
             <h5>
                 <a href="https://www.goodreads.com/search?q={{bookDetails[0]['title']}}">Goodreads page</a>
             </h5>
@@ -66,10 +66,10 @@
             <div class="list-group">
                 <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
                     <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1" style="color:primary">{{review['username']}} said...</h6>
+                        <h6 class="mb-1" style="color:primary">{{review['username'] | safe}} said...</h6>
                     </div>
-                    <p class="mb-1">{{review['comment']}}</p>
-                    <small>Rated: {{review['rating']}}</small>
+                    <p class="mb-1">{{review['comment'] | safe}}</p>
+                    <small>Rated: {{review['rating'] | safe}}</small>
                 </a>
                 <div class="dropdown-divider"></div>
             </div>

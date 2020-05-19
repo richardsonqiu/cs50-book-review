@@ -21,7 +21,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Set up database
-engine = create_engine('postgres://xtafrcfepfrhkv:1da5e6972ef6a58f22c55d716ca79ad297a6d7eefd350d633aacf8de4c636fa5@ec2-50-17-21-170.compute-1.amazonaws.com:5432/da6g2ambslb4rn')
+engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/")
@@ -146,7 +146,7 @@ def book(isbn):
         # Read Api key from env 
         key = os.getenv("GOODREADS_KEY")
 
-        if not os.getenv("GOODREADS_KEY"):
+        if not key:
             raise RuntimeError("GOODREADS_KEY is not set")
 
         # Query api with key and isbn as param
