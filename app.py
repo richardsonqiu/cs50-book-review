@@ -191,9 +191,9 @@ def book(isbn):
 
         rows2 = db.execute("SELECT * FROM reviews WHERE user_id=:user_id AND book_id=:book_id", {"user_id": currentUser, "book_id": book_id})
 
-        # if rows2.rowcount == 1:
-        #     flash("You already submitted a review for this book", 'warning')
-        #     return redirect("/book/" + isbn)
+        if rows2.rowcount == 1:
+            flash("You already submitted a review for this book", 'warning')
+            return redirect("/book/" + isbn)
 
         # rating = int(rating)
 
@@ -205,7 +205,36 @@ def book(isbn):
 
         return redirect("/book/" + isbn)    
 
+@app.route("/api/<isbn>")
+@login_required
+def api(isbn):
+    book = db.execute("SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn}).fetchone()
 
+    if not book:
+        return render_template("error.html", message="ERROR 404: Invalid ISBN ")
+
+    reviews = db.execute("SELECT * FROM reviews INNER JOIN books ON reviews.book_id = books.id WHERE isbn=:isbn", {"isbn": isbn}).fetchall()
+
+    count = 0
+    rate = 0
+
+    for review in reviews:
+        count += 1
+        rate += review.rating
+
+    if count>0:
+        average_rating = rate/count
+    else:
+        average_rating = 0
+
+    return jsonify(
+        title=book.title,
+        author=book.author,
+        year=book.year,
+        isbn=book.isbn,
+        review_count=count,
+        average_score=average_rating
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
